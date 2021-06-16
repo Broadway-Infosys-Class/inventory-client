@@ -36,3 +36,19 @@
     transform: rotate(360deg);
   }
 }
+
+.mainWrapper {
+  margin: 20px;
+}
+.titleWrapper {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.title {
+  width: fit-content;
+  font-size: 29px;
+  margin: 0;
+  margin-right: 20px;
+}
