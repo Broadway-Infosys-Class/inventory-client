@@ -18,9 +18,22 @@ interface IItem {
   quantity?: number;
 }
 
+interface IErrors {
+  name: boolean;
+  price: boolean;
+}
+
 const ItemList = () => {
+  const defaultValues: IItem = {
+    name: "",
+    price: 0,
+  };
   const [items, setItems] = useState([] as IItem[]);
-  const [newItem, setNewItem] = useState({} as IItem);
+  const [newItem, setNewItem] = useState(defaultValues as IItem);
+  const [errors, setErrors] = useState({
+    name: false,
+    price: false,
+  } as IErrors);
   const [show, setShow] = useState(false as boolean);
 
   const getAllItems = async () => {
@@ -38,19 +51,56 @@ const ItemList = () => {
       ...newItem,
       [event.target.name]: event.target.value,
     });
+    const validation = formValidation();
+    console.log("=======", errors);
+  };
+
+  const formValidation = () => {
+    if (newItem.name.length < 1) {
+      console.log("inside name validation");
+      setErrors({
+        ...errors,
+        name: true,
+      });
+    } else {
+      setErrors({
+        ...errors,
+        name: false,
+      });
+    }
+    if (newItem.price < 1) {
+      console.log("inside price");
+
+      setErrors({
+        ...errors,
+        price: true,
+      });
+    } else {
+      setErrors({
+        ...errors,
+        price: false,
+      });
+    }
+
+    return errors.name || errors.price;
   };
 
   const handleSubmit = async () => {
-    const response = await axios.post(
-      "http://localhost:4000/api/item",
-      newItem
-    );
-    setNewItem({
-      name: "",
-      price: 0,
-    });
-    setShow(false);
-    getAllItems();
+    console.log("from validation", errors);
+    if (!formValidation()) {
+      console.log("inside validation");
+      const response = await axios.post(
+        "http://localhost:4000/api/item",
+        newItem
+      );
+      setNewItem({
+        name: "",
+        price: 0,
+      });
+      setShow(false);
+      getAllItems();
+      return;
+    }
   };
 
   useEffect(() => {
@@ -101,21 +151,35 @@ const ItemList = () => {
         <Modal.Header closeButton>
           <Modal.Title>Modal heading</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <input
-            value={newItem.name}
-            onChange={handleInputChange}
-            type="text"
-            placeholder="Enter Product Name"
-            name="name"
-          />
-          <input
-            value={newItem.price}
-            onChange={handleInputChange}
-            type="number"
-            placeholder="Enter Product Price"
-            name="price"
-          />
+        <Modal.Body className="form-body">
+          <div className="input-wrapper">
+            <label>Product Name</label>
+            <input
+              className={errors.name || !newItem.name ? "input-error" : ""}
+              value={newItem.name}
+              onChange={handleInputChange}
+              type="text"
+              placeholder="Enter Product Name"
+              name="name"
+            />
+            {(errors.name || !newItem.name) && (
+              <p className="form-error">Please Enter Product Name</p>
+            )}
+          </div>
+          <div className="input-wrapper">
+            <label>Product Price</label>
+            <input
+              className={errors.price || !newItem.price ? "input-error" : ""}
+              value={newItem.price}
+              onChange={handleInputChange}
+              type="number"
+              placeholder="Enter Product Price"
+              name="price"
+            />
+            {(errors.price || !newItem.price) && (
+              <p className="form-error">Please Enter Product Price</p>
+            )}
+          </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
