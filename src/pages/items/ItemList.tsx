@@ -10,18 +10,8 @@ import {
   Table,
 } from "react-bootstrap";
 import ComponentWrapper from "../components/ComponentWrapper";
-
-interface IItem {
-  _id?: string;
-  name: string;
-  price: number;
-  quantity?: number;
-}
-
-interface IErrors {
-  name: boolean;
-  price: boolean;
-}
+import Title from "../components/Title";
+import { IItem, IErrorsItem } from "../../interfaces";
 
 const ItemList = () => {
   const defaultValues: IItem = {
@@ -33,7 +23,7 @@ const ItemList = () => {
   const [errors, setErrors] = useState({
     name: false,
     price: false,
-  } as IErrors);
+  } as IErrorsItem);
   const [show, setShow] = useState(false as boolean);
 
   const getAllItems = async () => {
@@ -89,10 +79,14 @@ const ItemList = () => {
     console.log("from validation", errors);
     if (!formValidation()) {
       console.log("inside validation");
-      const response = await axios.post(
-        "http://localhost:4000/api/item",
-        newItem
-      );
+
+      const response =
+        newItem._id && newItem._id?.length > 0
+          ? await axios.patch(
+              `http://localhost:4000/api/item/${newItem._id}`,
+              newItem
+            )
+          : await axios.post("http://localhost:4000/api/item", newItem);
       setNewItem({
         name: "",
         price: 0,
@@ -103,22 +97,32 @@ const ItemList = () => {
     }
   };
 
+  const handleItemEdit = (id: number) => {
+    setNewItem(items[id]);
+    setShow(true);
+  };
+
+  const handleAddBtnClicked = () => {
+    setShow(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    const response = await axios.delete(
+      `http://localhost:4000/api/item/${items[id]._id}`
+    );
+    getAllItems();
+  };
+
   useEffect(() => {
     getAllItems();
   }, []);
   return (
     <ComponentWrapper>
-      <div className="titleWrapper">
-        <p className="title">Items List</p>
-        <Button
-          onClick={() => {
-            setShow(true);
-          }}
-          variant="primary"
-        >
-          ADD
-        </Button>
-      </div>
+      <Title
+        heading="Item List"
+        buttonTitle="Add Item"
+        handleAddClick={handleAddBtnClicked}
+      />
       <div className="tableWrapper">
         <Table responsive>
           <thead>
@@ -133,13 +137,27 @@ const ItemList = () => {
           <tbody>
             {items.map((item, index) => (
               <tr>
-                <td>{index}</td>
+                <td>{index + 1}</td>
                 <td>{item.name}</td>
                 <td>{item.price}</td>
                 <td>{item.quantity}</td>
                 <td>
-                  <Button variant="warning">Edit</Button>
-                  <Button variant="danger">Delete</Button>
+                  <Button
+                    onClick={() => {
+                      handleItemEdit(index);
+                    }}
+                    variant="warning"
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      handleDelete(index);
+                    }}
+                    variant="danger"
+                  >
+                    Delete
+                  </Button>
                 </td>
               </tr>
             ))}
