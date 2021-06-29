@@ -1,7 +1,7 @@
 export interface IBill {
   _id?: string;
   billNo: string;
-  item: string;
+  itemId: IItem;
   quantity: number;
   vendor: string;
 }
