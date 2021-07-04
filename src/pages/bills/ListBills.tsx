@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import ComponentWrapper from "../components/ComponentWrapper";
 import Title from "../components/Title";
 import { Table, Modal, Button, Form, Col } from "react-bootstrap";
-import { IBill } from "../../interfaces";
+import { IBill, IItem } from "../../interfaces";
 import axios from "axios";
 
 const ListBills = () => {
   const [bills, setBills] = useState([] as IBill[]);
   const [show, setShow] = useState(false as boolean);
   const [validated, setValidated] = useState(false);
+  const [items, setItems] = useState([] as IItem[]);
 
   const handleClose = () => {
     setShow(false);
@@ -18,6 +19,10 @@ const ListBills = () => {
     setShow(true);
   };
 
+  const fetchAllItems = async () => {
+    const response = await axios.get("http://localhost:4000/api/item");
+    setItems(response.data.data);
+  };
   const fetchAllBills = async () => {
     const response = await axios.get("http://localhost:4000/api/bills");
     setBills(response.data.bills);
@@ -27,14 +32,16 @@ const ListBills = () => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
+      console.log("validation failed");
       event.stopPropagation();
     }
-
+    console.log("validation successful");
     setValidated(true);
   };
 
   useEffect(() => {
     fetchAllBills();
+    fetchAllItems();
   }, []);
   return (
     <ComponentWrapper>
@@ -73,8 +80,8 @@ const ListBills = () => {
         </Modal.Header>
         <Modal.Body className="form-body">
           <Form
+            action="http://localhost:4000/api/bills"
             method="post"
-            noValidate
             validated={validated}
             onSubmit={handleSubmit}
           >
@@ -82,13 +89,13 @@ const ListBills = () => {
               <Form.Group as={Col} md="6" controlId="validationCustom01">
                 <Form.Label>Bill No.</Form.Label>
                 <Form.Control
-                  name="bilNo"
+                  name="billNo"
                   required
                   type="text"
                   placeholder="Bill No."
                 />
                 <Form.Control.Feedback type="invalid">
-                  Looks good!
+                  This field is required!
                 </Form.Control.Feedback>
               </Form.Group>
               <Form.Group as={Col} md="6" controlId="validationCustom02">
@@ -100,21 +107,23 @@ const ListBills = () => {
                   placeholder="Vendor Name"
                 />
                 <Form.Control.Feedback type="invalid">
-                  Looks good!
+                  This field is required!
                 </Form.Control.Feedback>
               </Form.Group>
             </Form.Row>
             <Form.Row>
               <Form.Group as={Col} md="6" controlId="validationCustom01">
                 <Form.Label>Item</Form.Label>
-                <Form.Control
-                  name="itemId"
-                  required
-                  type="text"
-                  placeholder="Item"
-                />
+                <Form.Control name="itemId" as="select">
+                  <option value="">Default select</option>
+                  {items.map((item, index) => (
+                    <option key={index} value={item._id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </Form.Control>
                 <Form.Control.Feedback type="invalid">
-                  Looks good!
+                  This field is required!
                 </Form.Control.Feedback>
               </Form.Group>
               <Form.Group as={Col} md="6" controlId="validationCustom02">
@@ -126,7 +135,7 @@ const ListBills = () => {
                   placeholder="Quantity"
                 />
                 <Form.Control.Feedback type="invalid">
-                  Looks good!
+                  This field is required!
                 </Form.Control.Feedback>
               </Form.Group>
             </Form.Row>

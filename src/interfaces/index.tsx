@@ -17,3 +17,8 @@ export interface IErrorsItem {
   name: boolean;
   price: boolean;
 }
+
+export interface ILogin {
+  email: string;
+  password: string;
+}

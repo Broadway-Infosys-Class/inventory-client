@@ -97,8 +97,8 @@ const ItemList = () => {
     }
   };
 
-  const handleItemEdit = (id: number) => {
-    setNewItem(items[id]);
+  const handleItemEdit = (index: number) => {
+    setNewItem(items[index]);
     setShow(true);
   };
 
