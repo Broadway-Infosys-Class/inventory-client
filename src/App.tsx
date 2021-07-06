@@ -9,16 +9,18 @@ import ListBills from "./pages/bills/ListBills";
 import Cookie from "./pages/cookie/Cookie";
 import { useCookies } from "react-cookie";
 import Register from "./pages/user/Register";
+import Login from "./pages/login/Login";
 
 function App() {
   const [cookies, setCookie] = useCookies(["name"]);
   return (
     <BrowserRouter>
       <Switch>
-        <Route path="/login" component={Register} />
+        {/* <Route path="/login" component={Register} /> */}
         <Route path="/item" component={ItemList} />
         <Route path="/cookie" component={Cookie} />
         <Route path="/bills" component={ListBills} />
+        <Route path="/login" component={Login} />
         <Redirect from="/" to="/item" />
       </Switch>
     </BrowserRouter>

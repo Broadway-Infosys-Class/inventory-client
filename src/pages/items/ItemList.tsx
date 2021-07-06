@@ -12,12 +12,19 @@ import {
 import ComponentWrapper from "../components/ComponentWrapper";
 import Title from "../components/Title";
 import { IItem, IErrorsItem } from "../../interfaces";
+import Cookies from "js-cookie";
 
 const ItemList = () => {
   const defaultValues: IItem = {
     name: "",
     price: 0,
   };
+
+  axios.defaults.headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${Cookies.get("token")}`,
+  };
+
   const [items, setItems] = useState([] as IItem[]);
   const [newItem, setNewItem] = useState(defaultValues as IItem);
   const [errors, setErrors] = useState({
